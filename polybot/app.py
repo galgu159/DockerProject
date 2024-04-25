@@ -1,7 +1,7 @@
 import flask
 from flask import request
 import os
-from bot import ObjectDetectionBot
+from bot import Bot, ObjectDetectionBot
 
 app = flask.Flask(__name__)
 
@@ -17,11 +17,11 @@ def index():
 @app.route(f'/{TELEGRAM_TOKEN}/', methods=['POST'])
 def webhook():
     req = request.get_json()
+    print(req['message'])
     bot.handle_message(req['message'])
     return 'Ok'
 
 
 if __name__ == "__main__":
     bot = ObjectDetectionBot(TELEGRAM_TOKEN, TELEGRAM_APP_URL)
-
     app.run(host='0.0.0.0', port=8443)

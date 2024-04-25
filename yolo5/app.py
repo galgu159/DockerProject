@@ -1,5 +1,7 @@
 import time
 from pathlib import Path
+import boto3
+import pymongo
 from flask import Flask, request
 from detect import run
 import uuid
@@ -7,9 +9,12 @@ import yaml
 from loguru import logger
 import os
 
+# Get the bucket name from the environment variable
 images_bucket = os.environ['BUCKET_NAME']
 
+# Open the YAML file in read mode
 with open("data/coco128.yaml", "r") as stream:
+    # Load the YAML content safely, Extract the value associated with the key 'names'
     names = yaml.safe_load(stream)['names']
 
 app = Flask(__name__)
@@ -26,9 +31,24 @@ def predict():
 
     # TODO download img_name from S3, store the local image path in the original_img_path variable.
     #  The bucket name is provided as an env var BUCKET_NAME.
-    original_img_path = ...
+    # Local directory to save the image
+    local_directory = 'local_images'
+    # Ensure the local directory exists, if not, create it
+    if not os.path.exists(local_directory):
+        os.makedirs(local_directory)
+    # Local file path where the image will be saved
+    local_image_path = os.path.join(local_directory, img_name)
+    try:
+        # Correct usage of download_file method from boto3
+        boto3.client('s3').download_file(images_bucket, img_name, local_image_path)
+        original_img_path = local_image_path
+        print(f"Image downloaded from S3 and saved locally at: {original_img_path}")
+    except Exception as e:
+        print(f"Error downloading image {img_name} from S3: {e}")
 
-    logger.info(f'prediction: {prediction_id}/{original_img_path}. Download img completed')
+    # Check if original_img_path is not None before logging
+    if original_img_path is not None:
+        logger.info(f'prediction: {prediction_id}/{original_img_path}. Download img completed')
 
     # Predicts the objects in the image
     run(
@@ -47,6 +67,18 @@ def predict():
     predicted_img_path = Path(f'static/data/{prediction_id}/{original_img_path}')
 
     # TODO Uploads the predicted image (predicted_img_path) to S3 (be careful not to override the original image).
+    # Checking if the file already exists in the S3 bucket
+    s3_existing_objects = boto3.client('s3').list_objects_v2(Bucket=boto3.client('s3'))
+    s3_existing_keys = [obj['Key'] for obj in s3_existing_objects.get('Contents', [])]
+
+    # Generating a unique key for the S3 object
+    s3_key = os.path.join(prediction_id, predicted_img_path)
+    while s3_key in s3_existing_keys:
+        s3_key = os.path.join(prediction_id, os.path.splitext(predicted_img_path)[0] + '_1' +
+                              os.path.splitext(predicted_img_path)[1])
+
+    # Uploading the predicted image to S3
+    boto3.client('s3').upload_file(str(predicted_img_path), images_bucket, s3_key)
 
     # Parse prediction labels and create a summary
     pred_summary_path = Path(f'static/data/{prediction_id}/labels/{original_img_path.split(".")[0]}.txt')
@@ -73,7 +105,13 @@ def predict():
         }
 
         # TODO store the prediction_summary in MongoDB
-
+        # Connect to MongoDB
+        client = pymongo.MongoClient("mongodb://localhost:27017/")
+        db = client["mongo_1"]
+        # Select or create a collection for predictions
+        collection = db["predictions"]
+        # Insert JSON data into MongoDB
+        collection.insert_one(prediction_summary)
         return prediction_summary
     else:
         return f'prediction: {prediction_id}/{original_img_path}. prediction result not found', 404
