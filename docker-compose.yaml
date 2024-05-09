@@ -1,33 +1,56 @@
-version: '1'
+version: '3.8'
 
 services:
-  mongo_primary:
-    image: mongo:${MONGO_DB_VER}
-    container_name: mongo_primary
+  mongo_1:
+    image: ${MONGO_DB_VER}
+    container_name: mongo_1
     ports:
-      - "27017:27017"
+       - "27017:27017"
+    env_file:
+      - .env
     networks:
       - mongoCluster
       - yolo_to_mongo_primary
-    command: mongod --replSet myReplicaSet --bind_ip localhost,mongo_primary
-
-  mongo_1:
-    image: mongo:${MONGO_DB_VER}
-    container_name: mongo_1
-    ports:
-      - "27018:27017"
-    networks:
-      - mongoCluster
-    command: mongod --replSet myReplicaSet --bind_ip localhost,mongo_1
+    command: mongod --replSet myReplicaSet --bind_ip_all
 
   mongo_2:
-    image: mongo:${MONGO_DB_VER}
+    image: ${MONGO_DB_VER}
     container_name: mongo_2
     ports:
-      - "27019:27017"
+      - "27018:27017"
+    env_file:
+      - .env
     networks:
       - mongoCluster
-    command: mongod --replSet myReplicaSet --bind_ip localhost,mongo_2
+    command: mongod --replSet myReplicaSet --bind_ip_all
+
+  mongo_3:
+    image: ${MONGO_DB_VER}
+    container_name: mongo_3
+    ports:
+      - "27019:27017"
+    env_file:
+      - .env
+    networks:
+      - mongoCluster
+    command: mongod --replSet myReplicaSet --bind_ip_all
+
+  mongo_init:
+    image: ${MONGO_DB_VER}
+    container_name: mongo_init
+    volumes:
+      - mongo_data:/data/db
+    environment:
+      - .env
+    networks:
+      - mongoCluster
+    build:
+      context: ./mongo_init
+      dockerfile: Dockerfile
+    depends_on:
+      - mongo_1
+      - mongo_2
+      - mongo_3
 
   polybot:
     image: polybot:${POLYBOT_VER}
@@ -36,9 +59,12 @@ services:
       - "8443:8443"
     env_file:
       - .env
+    networks:
+      - mongoCluster
+      - yolo_to_mongo_primary  
 
   yolo5_app:
-    image: yolo5:0.0.1
+    image: yolo5:${YOLO5_IMG_NAME}
     container_name: yolo5_app
     ports:
       - "8081:8081"
@@ -46,18 +72,21 @@ services:
       - $HOME/aws/credentials:$HOME/aws/credentials
     env_file:
       - .env
+    environment:
+      - FLASK_DEBUG=1
     networks:
-      - mongoCluster
       - yolo_to_mongo_primary
-      - polybot_to_yolo
+      - mongoCluster
 
 networks:
   mongoCluster:
     name: mongoCluster
     driver: bridge
+    external: false
   yolo_to_mongo_primary:
     name: yolo_to_mongo_primary
     driver: bridge
-  polybot_to_yolo:
-    name: polybot_to_yolo
-    driver: bridge
+
+
+volumes:
+  mongo_data:
