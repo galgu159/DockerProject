@@ -36,7 +36,7 @@ services:
     image: galgu/mongo:${MONGO_DB_VER}
     volumes:
       - mongo_data:/data/db
-    environment:
+    env_file:
       - .env
     networks:
       - mongoCluster
