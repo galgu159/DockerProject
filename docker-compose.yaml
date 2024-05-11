@@ -59,7 +59,7 @@ services:
       - yolo_to_mongo_primary  
 
   yolo5_app:
-    image: galgu/yolo5:${YOLO5_IMG_NAME}
+    image: galgu/${YOLO5_IMG_NAME}
     ports:
       - "8081:8081"
     volumes:
