@@ -49,7 +49,7 @@ services:
       - mongo_3
 
   polybot:
-    image: galgu/polybot:${POLYBOT_VER}
+    image: galgu/polybot:${POLYBOT_IMAGE_NAME}
     ports:
       - "8443:8443"
     env_file:
