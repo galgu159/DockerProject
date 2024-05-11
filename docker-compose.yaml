@@ -2,8 +2,7 @@ version: '3.8'
 
 services:
   mongo_1:
-    image: ${MONGO_DB_VER}
-    container_name: mongo_1
+    image: galgu/:mongo-${MONGO_DB_VER}
     ports:
        - "27017:27017"
     env_file:
@@ -14,8 +13,7 @@ services:
     command: mongod --replSet myReplicaSet --bind_ip_all
 
   mongo_2:
-    image: ${MONGO_DB_VER}
-    container_name: mongo_2
+    image: galgu/:mongo-${MONGO_DB_VER}
     ports:
       - "27018:27017"
     env_file:
@@ -25,8 +23,7 @@ services:
     command: mongod --replSet myReplicaSet --bind_ip_all
 
   mongo_3:
-    image: ${MONGO_DB_VER}
-    container_name: mongo_3
+    image: galgu/:mongo-${MONGO_DB_VER}
     ports:
       - "27019:27017"
     env_file:
@@ -36,8 +33,7 @@ services:
     command: mongod --replSet myReplicaSet --bind_ip_all
 
   mongo_init:
-    image: ${MONGO_DB_VER}
-    container_name: mongo_init
+    image: galgu/:mongo-${MONGO_DB_VER}
     volumes:
       - mongo_data:/data/db
     environment:
@@ -53,8 +49,7 @@ services:
       - mongo_3
 
   polybot:
-    image: polybot:${POLYBOT_VER}
-    container_name: polybot
+    image: galgu/polybot:${POLYBOT_IMG_NAME}
     ports:
       - "8443:8443"
     env_file:
@@ -64,8 +59,7 @@ services:
       - yolo_to_mongo_primary  
 
   yolo5_app:
-    image: yolo5:${YOLO5_IMG_NAME}
-    container_name: yolo5_app
+    image: galgu/yolo5:${YOLO5_IMG_NAME}
     ports:
       - "8081:8081"
     volumes:
