@@ -23,8 +23,8 @@ jobs:
           docker login -u ${{ secrets.DOCKER_REPO_USERNAME }} -p ${{ secrets.DOCKER_REPO_PASSWORD }}
 
           IMAGE_NAME=polybot:${{ github.run_number }}
-          docker build -t $IMAGE_NAME .
-          docker push $IMAGE_NAME
+          docker build -t polybot:$POLYBOT_VER .
+          docker push galgu/polybot:$POLYBOT_VER
 
   Yolo5Build:
     runs-on: ubuntu-latest
