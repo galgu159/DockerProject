@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   mongo_1:
-    image: galgu/:mongo-${MONGO_DB_VER}
+    image: galgu/mongo:${MONGO_DB_VER}
     ports:
        - "27017:27017"
     env_file:
