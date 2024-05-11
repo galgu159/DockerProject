@@ -40,7 +40,7 @@ jobs:
           
           docker login -u ${{ secrets.DOCKER_REPO_USERNAME }} -p ${{ secrets.DOCKER_REPO_PASSWORD }}
 
-          YOLO_IMAGE_NAME=yolo:${{ github.run_number }}
+          YOLO_IMAGE_NAME=yolo5:${{ github.run_number }}
           docker build -t $YOLO_IMAGE_NAME .
           docker tag $YOLO_IMAGE_NAME ${{ secrets.DOCKER_REPO_USERNAME }}/$YOLO_IMAGE_NAME
           docker push ${{ secrets.DOCKER_REPO_USERNAME }}/$YOLO_IMAGE_NAME
