@@ -1,5 +1,5 @@
-#ignor from .env
-.env
+#ignor from DockerProjectENV
+DockerProjectENV
 
 
 # Byte-compiled / optimized / DLL files
@@ -124,7 +124,7 @@ celerybeat.pid
 *.sage.py
 
 # Environments
-.env
+DockerProjectENV
 .venv
 env/
 venv/

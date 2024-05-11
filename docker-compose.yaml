@@ -7,7 +7,7 @@ services:
     ports:
        - "27017:27017"
     env_file:
-      - .env
+      - DockerProjectENV
     networks:
       - mongoCluster
       - yolo_to_mongo_primary
@@ -19,7 +19,7 @@ services:
     ports:
       - "27018:27017"
     env_file:
-      - .env
+      - DockerProjectENV
     networks:
       - mongoCluster
     command: mongod --replSet myReplicaSet --bind_ip_all
@@ -30,7 +30,7 @@ services:
     ports:
       - "27019:27017"
     env_file:
-      - .env
+      - DockerProjectENV
     networks:
       - mongoCluster
     command: mongod --replSet myReplicaSet --bind_ip_all
@@ -41,7 +41,7 @@ services:
     volumes:
       - mongo_data:/data/db
     environment:
-      - .env
+      - DockerProjectENV
     networks:
       - mongoCluster
     build:
@@ -58,7 +58,7 @@ services:
     ports:
       - "8443:8443"
     env_file:
-      - .env
+      - DockerProjectENV
     networks:
       - mongoCluster
       - yolo_to_mongo_primary  
@@ -71,7 +71,7 @@ services:
     volumes:
       - $HOME/aws/credentials:$HOME/aws/credentials
     env_file:
-      - .env
+      - DockerProjectENV
     environment:
       - FLASK_DEBUG=1
     networks:
