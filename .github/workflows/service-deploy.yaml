@@ -5,8 +5,9 @@ on:
     branches:
       - main
 
+
 env:
-  EC2_PUBLIC_IP:  51.20.187.11 # TODO replace to your EC2 instance public IP
+  EC2_PUBLIC_IP:  51.20.187.11 # replace to your EC2 instance public IP
 
 jobs:
   PolybotBuild:
@@ -22,9 +23,10 @@ jobs:
           # Login to DockerHub (comment out if you don't use DockerHub):         
           docker login -u ${{ secrets.DOCKER_REPO_USERNAME }} -p ${{ secrets.DOCKER_REPO_PASSWORD }}
 
-          IMAGE_NAME=polybot:${{ github.run_number }}
-          docker build -t $IMAGE_NAME .
-          docker push $IMAGE_NAME
+          POLYBOT_IMAGE_NAME=polybot:${{ github.run_number }}
+          docker build -t $POLYBOT_IMAGE_NAME .
+          docker tag $POLYBOT_IMAGE_NAME ${{ secrets.DOCKER_REPO_USERNAME }}/$POLYBOT_IMAGE_NAME
+          docker push ${{ secrets.DOCKER_REPO_USERNAME }}/$POLYBOT_IMAGE_NAME
 
   Yolo5Build:
     runs-on: ubuntu-latest
@@ -38,9 +40,10 @@ jobs:
           
           docker login -u ${{ secrets.DOCKER_REPO_USERNAME }} -p ${{ secrets.DOCKER_REPO_PASSWORD }}
 
-          IMAGE_NAME=yolo5:${{ github.run_number }}
-          docker build -t $IMAGE_NAME .
-          docker push $IMAGE_NAME
+          YOLO_IMAGE_NAME=yolo5:${{ github.run_number }}
+          docker build -t $YOLO_IMAGE_NAME .
+          docker tag $YOLO_IMAGE_NAME ${{ secrets.DOCKER_REPO_USERNAME }}/$YOLO_IMAGE_NAME
+          docker push ${{ secrets.DOCKER_REPO_USERNAME }}/$YOLO_IMAGE_NAME
 
   Deploy:
     name: Deploy Docker compose project
@@ -79,7 +82,7 @@ jobs:
             echo "${{ secrets.TELEGRAM_TOKEN }}" > telegram_bot_token.secret
             
             # Get the ngrok current domain (you should assume ngrok is already running in the EC2)
-            NGROK_DOMAIN=$(curl -s localhost:4040/api/tunnels | jq -r '.tunnels[0].public_url')
+            NGROK_DOMAIN=$(curl -s localhost:8443/api/tunnels | jq -r '.tunnels[0].public_url')
             
             # Generate .env file
             echo """
