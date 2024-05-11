@@ -1,7 +1,6 @@
 #!/bin/bash
 
 # Function to initialize the replica set
-#
 
 sleep 10
 initialize_replica_set() {

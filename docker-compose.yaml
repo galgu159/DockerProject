@@ -33,7 +33,7 @@ services:
     command: mongod --replSet myReplicaSet --bind_ip_all
 
   mongo_init:
-    image: galgu/mongo:${MONGO_DB_VER}
+    image: galgu/mongo:mongo4
     volumes:
       - mongo_data:/data/db
     env_file:
