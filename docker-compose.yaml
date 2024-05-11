@@ -13,7 +13,7 @@ services:
     command: mongod --replSet myReplicaSet --bind_ip_all
 
   mongo_2:
-    image: galgu/:mongo-${MONGO_DB_VER}
+    image: galgu/mongo:${MONGO_DB_VER}
     ports:
       - "27018:27017"
     env_file:
@@ -23,7 +23,7 @@ services:
     command: mongod --replSet myReplicaSet --bind_ip_all
 
   mongo_3:
-    image: galgu/:mongo-${MONGO_DB_VER}
+    image: galgu/mongo:${MONGO_DB_VER}
     ports:
       - "27019:27017"
     env_file:
@@ -33,7 +33,7 @@ services:
     command: mongod --replSet myReplicaSet --bind_ip_all
 
   mongo_init:
-    image: galgu/:mongo-${MONGO_DB_VER}
+    image: galgu/mongo:${MONGO_DB_VER}
     volumes:
       - mongo_data:/data/db
     environment:
